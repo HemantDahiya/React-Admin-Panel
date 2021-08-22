@@ -6,6 +6,7 @@ import React, { useEffect, useState } from 'react';
 const AdminTable = ({ handleClick }) => {
 
     const [tableData, setTableData] = useState([]);
+    const [filteredTableData, setFilteredTableData] = useState([]);
     const [rowIdActive, setRowIdActive] = useState();
     const [inputValue,setInputValue] =useState("");
 
@@ -20,15 +21,15 @@ const AdminTable = ({ handleClick }) => {
         "?rows=32&id=%7Bnumber%7C1000%7D&firstName=%7BfirstName%7D&lastName=%7BlastName%7D&email=%7Bemail%7D" + 
         "&phone=%7Bphone%7C(xxx)xxx-xx-xx%7D&address=%7BaddressObject%7D&description=%7Blorem%7C32%7D")
             .then(res => res.json())
-            .then(response => setTableData(response));
+            .then(response => {setTableData(response) ;setFilteredTableData(response)});
     }, []);
 
-    const handleSearch=()=>{
-
-        const getIds=tableData.map(data=>data);
-     
-        const filterData= getIds.filter((item)=>item.firstName.includes(inputValue));
-        setTableData(filterData);
+    const handleSearch=(event)=>{
+        
+        // const getIds=tableData.map(data=>data);
+        console.log("input Value",inputValue)
+        const filterData= tableData.filter((item)=>item.firstName.includes(inputValue)||(item.id+"").includes(inputValue));
+        setFilteredTableData(filterData);
         
         console.log("filter Data",filterData);
     }
@@ -37,12 +38,13 @@ const AdminTable = ({ handleClick }) => {
 
         <div id="table-section">
 
-            <form action="/">
+            <form action="#" onSubmit={(e)=>{e.preventDefault(); handleSearch(e)}}>
                 <img src={searchIcon} alt="Search Icon" onClick={handleSearch}/>
                 <input type="text" placeholder="Enter something" 
                 name="search-box" id="search-box" 
                 value={inputValue} 
-                onChange={(e)=>setInputValue(e.target.value)}/>
+                onChange={(e)=>{setInputValue(e.target.value) }}/>
+                
             </form>
 
             <div id="table-wrapper">
@@ -64,7 +66,7 @@ const AdminTable = ({ handleClick }) => {
                 <div id="table-data">
                     <table>
                         <tbody>
-                            {tableData.map(
+                            {filteredTableData.map(
                                 (tableRow, currentRowIndex) => {
                                     return (<tr id={currentRowIndex} 
                                     className={"data-row " + (rowIdActive === currentRowIndex && "active")} 
